@@ -9,7 +9,7 @@
 }
 
 body {
-  @apply bg-[#F8FEFF] font-manrope;
+  @apply bg-[#FFFFFF] font-manrope;
 }
 
 @layer base {
