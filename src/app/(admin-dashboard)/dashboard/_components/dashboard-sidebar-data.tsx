@@ -1,4 +1,10 @@
-import { LayoutDashboard, Settings, Users } from "lucide-react";
+import {
+  LayoutDashboard,
+  PackagePlus,
+  Settings,
+  Shapes,
+  Users,
+} from "lucide-react";
 
 export type DashboardSidebardDataType = {
   id: number;
@@ -24,18 +30,18 @@ export const DashboardSidebardData: DashboardSidebardDataType[] = [
     id: 3,
     name: "Add Category",
     href: "/dashboard/add-category",
-    icon: <LayoutDashboard />,
+    icon: <Shapes />,
   },
   {
     id: 4,
     name: "Product Management",
     href: "/dashboard/product-management",
-    icon: <LayoutDashboard />,
+    icon: <PackagePlus />,
   },
   {
     id: 5,
     name: "Setting",
     href: "/dashboard/setting",
     icon: <Settings />,
-  }
+  },
 ];

@@ -1,11 +1,14 @@
-import React from 'react'
+import React from "react";
+import AddCategoryHeader from "./_components/add-category-header";
+import AddCategoryForm from "./_components/AddCategoryForm";
 
 const AddCategoryPage = () => {
   return (
     <div>
-      AddCategory Page
+      <AddCategoryHeader />
+      <AddCategoryForm />
     </div>
-  )
-}
+  );
+};
 
-export default AddCategoryPage
+export default AddCategoryPage;
