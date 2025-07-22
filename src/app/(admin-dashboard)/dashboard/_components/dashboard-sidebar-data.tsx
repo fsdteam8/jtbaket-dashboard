@@ -28,8 +28,8 @@ export const DashboardSidebardData: DashboardSidebardDataType[] = [
   },
   {
     id: 3,
-    name: "Add Category",
-    href: "/dashboard/add-category",
+    name: "Category",
+    href: "/dashboard/category",
     icon: <Shapes />,
   },
   {
