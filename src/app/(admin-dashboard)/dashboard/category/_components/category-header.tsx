@@ -1,13 +1,13 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-const AddCategoryHeader = () => {
+const CategoryHeader = () => {
   return (
-    <div>
+    <div className="flex items-center justify-between px-[50px]">
       <div>
         <h2 className="text-2xl font-bold text-[#131313] leading-[120%]">
-          Add Category
+          Category List
         </h2>
         <div className="flex items-center gap-2 pt-[14px]">
           <Link
@@ -22,8 +22,15 @@ const AddCategoryHeader = () => {
           </p>
         </div>
       </div>
+      <div>
+        <Link href="/dashboard/category/add-category">
+          <button className="flex items-center gap-2 text-base text-white font-medium leading-[120%] bg-secondary py-[15px] px-[26px] rounded-full">
+            <Plus className="w-6 h-6" /> Add Categories
+          </button>
+        </Link>
+      </div>
     </div>
   );
 };
 
-export default AddCategoryHeader;
+export default CategoryHeader;
