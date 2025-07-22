@@ -49,13 +49,21 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const yearList = [
-  { id: 1, name: "2000", value: 2000 },
-  { id: 2, name: "2001", value: 2001 },
-  { id: 3, name: "2002", value: 2002 },
+  { id: 3, name: "2022", value: 2022 },
+  { id: 4, name: "2023", value: 2023 },
+  { id: 5, name: "2024", value: 2024 },
+  { id: 6, name: "2025", value: 2025 },
+  { id: 7, name: "2026", value: 2026 },
+  { id: 8, name: "2027", value: 2027 },
+  { id: 9, name: "2028", value: 2028 },
+  { id: 10, name: "2029", value: 2029 },
+  { id: 11, name: "2030", value: 2030 },
 ];
 
 export function DashboardSummery() {
-  const [year, setYear] = useState("2025")
+  const [selectedYear, setSelectedYear] = useState<string | number | undefined>(
+    undefined
+  );
   return (
     <Card className="w-full max-h-[426px] mt-[34px]">
       <div className="w-full flex items-center justify-between pr-10">
@@ -70,9 +78,9 @@ export function DashboardSummery() {
         <div className="text-primary ">
           <JtbaketDropdownSelector
             list={yearList}
-            selectedValue={year}
-            onValueChange={(year) => setYear(String(year))}
-            placeholderText="Select Year"
+            selectedValue={selectedYear}
+            onValueChange={setSelectedYear}
+            placeholderText="Select a year"
           />
         </div>
       </div>

@@ -1,9 +1,12 @@
 import React from 'react'
+import UserManagementHeader from './_components/user-management-header'
+import UserManagementContainer from './_components/user-management-container'
 
 const UserManagementPage = () => {
   return (
     <div>
-      user management page
+      <UserManagementHeader/>
+      <UserManagementContainer/>
     </div>
   )
 }
