@@ -1,29 +1,117 @@
 "use client";
 import JtbaketPagination from "@/components/ui/JtbaketPagination";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SquarePen, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import React, { useState } from "react";
+import moment from "moment";
+import ErrorContainer from "@/components/shared/ErrorContainer/ErrorContainer";
+import TableSkeletonWrapper from "@/components/shared/TableSkeletonWrapper/TableSkeletonWrapper";
+import NotFound from "@/components/shared/NotFound/NotFound";
+import Link from "next/link";
+import DeleteModal from "@/components/modals/DeleteModal";
+import { toast } from "sonner";
 
-export type UserOrder = {
-  id: number;
-  name: string;
-  date: string;
+export type CategoryResponse = {
+  status: boolean;
+  message: string;
+  data: {
+    categories: Category[];
+    pagination: Pagination;
+  };
 };
 
-export const userOrderList: UserOrder[] = [
-  {
-    id: 1,
-    name: "John Smith",
-    date: "2022-01-01",
-  },
-  {
-    id: 2,
-    name: "John Smith",
-    date: "2022-01-01",
-  },
-];
+export type Category = {
+  _id: string;
+  name: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
+};
+
+export type Pagination = {
+  currentPage: number;
+  totalPages: number;
+  totalData: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+};
 
 const CategoryContainer = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
+  // console.log({ token });
+  // get api logic
+  const { data, isLoading, isError, error } = useQuery<CategoryResponse>({
+    queryKey: ["category-all-data", currentPage],
+    queryFn: () =>
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/category?page=${currentPage}&limit=8`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ).then((res) => res.json()),
+  });
+
+  // delete api logic
+  const { mutate: deleteBlog } = useMutation({
+    mutationKey: ["delete-categiry"],
+    mutationFn: (id: string) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/category/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((res) => res.json()),
+    onSuccess: (data) => {
+      if (!data?.status) {
+        toast.error(data?.message || "Failed to delete category");
+        return;
+      } else {
+        toast.success(data?.message || "category deleted successfully");
+      }
+      queryClient.invalidateQueries({ queryKey: ["category-all-data"] });
+    },
+  });
+
+  // delete modal logic
+  const handleDelete = () => {
+    if (selectedBlogId) {
+      deleteBlog(selectedBlogId);
+    }
+    setDeleteModalOpen(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="mt-10">
+        <TableSkeletonWrapper count={6} />
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <div className="mt-10">
+        <ErrorContainer message={error?.message || "Something went wrong"} />
+      </div>
+    );
+  }
+
+  if (data?.data?.categories?.length === 0) {
+    return (
+      <div className="mt-10">
+        <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
+      </div>
+    );
+  }
+
   return (
     <div className="mt-8 pb-[64px]">
       <div>
@@ -42,23 +130,33 @@ const CategoryContainer = () => {
             </tr>
           </thead>
           <tbody className="">
-            {userOrderList?.map((item) => {
+            {data?.data?.categories?.map((item) => {
               return (
                 <tr
-                  key={item.id}
+                  key={item._id}
                   className="border-y border-dashed border-[#B6B6B6] "
                 >
                   <td className="text-base font-medium leading-[120%] text-primary-50 py-[30px] text-left pl-[50px]">
                     {item?.name}
                   </td>
                   <td className="text-base font-medium leading-[120%] text-primary-50 py-[30px] text-center">
-                    {item?.date}
+                    {moment(item?.createdAt).format("MM/DD/YYYY")}
                   </td>
                   <td className="py-[30px] flex items-center justify-end gap-4 text-right pr-[50px]">
-                    <button className="">
-                      <SquarePen className="w-5 h-5" />
-                    </button>
-                    <button className="">
+                    <Link
+                      href={`/dashboard/category/edit-category/${item._id}`}
+                    >
+                      <button className="">
+                        <SquarePen className="w-5 h-5" />
+                      </button>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setDeleteModalOpen(true);
+                        setSelectedBlogId(item?._id);
+                      }}
+                      className=""
+                    >
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </td>
@@ -68,23 +166,35 @@ const CategoryContainer = () => {
           </tbody>
         </table>
         <div className="">
-          {
-            <div className="bg-white flex items-center justify-between py-[10px] px-[50px]">
-              <p className="text-sm font-medium leading-[120%] font-manrope text-[#707070]">
-                Showing {currentPage} to 8 of 10 results
-              </p>
+          {data &&
+            data?.data &&
+            data?.data?.pagination &&
+            data?.data?.pagination?.totalPages > 1 && (
+              <div className="bg-white flex items-center justify-between py-[10px] px-[50px]">
+                <p className="text-sm font-medium leading-[120%] font-manrope text-[#707070]">
+                  Showing {currentPage} to 8 of{" "}
+                  {data?.data?.pagination?.totalData} results
+                </p>
 
-              <div>
-                <JtbaketPagination
-                  totalPages={10}
-                  currentPage={currentPage}
-                  onPageChange={(page) => setCurrentPage(page)}
-                />
+                <div>
+                  <JtbaketPagination
+                    totalPages={data?.data?.pagination?.totalPages}
+                    currentPage={currentPage}
+                    onPageChange={(page) => setCurrentPage(page)}
+                  />
+                </div>
               </div>
-            </div>
-          }
+            )}
         </div>
       </div>
+      {/* delete modal  */}
+      {deleteModalOpen && (
+        <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleDelete}
+        />
+      )}
     </div>
   );
 };
