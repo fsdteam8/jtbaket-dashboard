@@ -1,11 +1,16 @@
-import React from 'react'
+import React from "react";
+import SettingContainer from "./_components/setting-container";
+// import { SettingsMain } from "./_components/settings-main";
+// import { PersonalInformation } from "./_components/personal-information";
 
 const SettingPage = () => {
   return (
     <div>
-      Setting Page
+      {/* <SettingsMain />
+      <PersonalInformation/> */}
+      <SettingContainer />
     </div>
-  )
-}
+  );
+};
 
-export default SettingPage
+export default SettingPage;
