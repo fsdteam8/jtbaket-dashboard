@@ -17,6 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import SuccessfullyApprovedModal from "@/components/modals/sucessfully-approved-modal";
+import { useSearchParams } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -34,6 +37,10 @@ const ResetPasswordForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+  const decodedEmail = decodeURIComponent(email || "");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,10 +48,35 @@ const ResetPasswordForm = () => {
       confirmPassword: "",
     },
   });
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["reset-password"],
+    mutationFn: (values: { newPassword: string; email: string }) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(values),
+      }).then((res) => res.json()),
+    onSuccess: (data) => {
+      if (!data?.status) {
+        toast.error(data?.message || "Something went wrong");
+        return;
+      } else {
+        // toast.success(data?.message || "Password Change successfully!");
+        // router.push(`/login`);
+      }
+    },
+  });
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    // console.log(values);
+    if (!decodedEmail) {
+      toast.error("email is required");
+      return;
+    }
+    mutate({ newPassword: values.password, email: decodedEmail });
   }
   return (
     <div>
@@ -90,7 +122,10 @@ const ResetPasswordForm = () => {
                         placeholder="Enter Password ...."
                         {...field}
                       />
-                      <button className="absolute top-3.5 right-4">
+                      <button
+                        type="button"
+                        className="absolute top-3.5 right-4"
+                      >
                         {showPassword ? (
                           <Eye onClick={() => setShowPassword(!showPassword)} />
                         ) : (
@@ -135,7 +170,10 @@ const ResetPasswordForm = () => {
                         placeholder="Enter Password ...."
                         {...field}
                       />
-                      <button className="absolute top-3.5 right-4">
+                      <button
+                        type="button"
+                        className="absolute top-3.5 right-4"
+                      >
                         {showConfirmPassword ? (
                           <Eye
                             onClick={() =>
@@ -158,11 +196,13 @@ const ResetPasswordForm = () => {
             />
 
             <Button
+              disabled={isPending}
               onClick={() => setIsOpen(true)}
               className="text-lg font-bold text-[#F8FAF9] leading-[120%] rounded-[32px] w-full h-[52px] bg-secondary shadow-[0px_4px_4px_0px_rgba(0, 0, 0, 0.15)]"
               type="submit"
             >
-              Sign In
+              {/* {isPending ? "Sending ..." : "Sign In"} */}
+              {isPending ? "Loading..." : "Continue"}
             </Button>
           </form>
         </Form>
