@@ -3,11 +3,13 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
 import { Manrope } from "next/font/google";
+import AppProvider from "@/components/provider/AppProvider";
+import AuthProvider from "@/components/provider/AuthProvider";
 
 const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-manrope", // optional if you want to use CSS variable
+  variable: "--font-manrope",
 });
 
 export const metadata: Metadata = {
@@ -23,8 +25,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${manrope.variable} antialiased`}>
-        {children}
-        <Toaster />
+        <AuthProvider>
+          <AppProvider>
+            {children}
+            <Toaster position="top-right"/>
+          </AppProvider>
+        </AuthProvider>
       </body>
     </html>
   );

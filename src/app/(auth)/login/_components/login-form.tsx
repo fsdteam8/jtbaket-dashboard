@@ -19,6 +19,9 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -32,6 +35,8 @@ const formSchema = z.object({
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,8 +47,29 @@ const LoginForm = () => {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    // console.log(values);
+    try {
+      setIsLoading(true);
+
+      const res = await signIn("credentials", {
+        email: values?.email,
+        password: values?.password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        throw new Error(res.error);
+      }
+
+      toast.success("Login successful!");
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+      toast.error((error as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
   }
   return (
     <div>
@@ -119,7 +145,7 @@ const LoginForm = () => {
                         placeholder="Enter Password ...."
                         {...field}
                       />
-                      <button className="absolute top-3.5 right-4">
+                      <button type="button" className="absolute top-3.5 right-4">
                         {showPassword ? (
                           <Eye onClick={() => setShowPassword(!showPassword)} />
                         ) : (
@@ -168,10 +194,11 @@ const LoginForm = () => {
             />
 
             <Button
+            disabled={isLoading}
               className="text-lg font-bold text-[#F8FAF9] leading-[120%] rounded-[32px] w-full h-[52px] bg-secondary shadow-[0px_4px_4px_0px_rgba(0, 0, 0, 0.15)]"
               type="submit"
             >
-              Sign In
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </Form>
