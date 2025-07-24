@@ -16,9 +16,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Save } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import TableSkeletonWrapper from "@/components/shared/TableSkeletonWrapper/TableSkeletonWrapper";
+import ErrorContainer from "@/components/shared/ErrorContainer/ErrorContainer";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -26,23 +29,56 @@ const formSchema = z.object({
   }),
 });
 
-const AddCategoryForm = () => {
+export type GetCategoryResponse = {
+  status: boolean;
+  message: string;
+  data: Category;
+};
+
+export type Category = {
+  _id: string;
+  name: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
+};
+
+const EditCategoryForm = ({ categoryId }: { categoryId: string }) => {
   const session = useSession();
   const token = (session?.data?.user as { accessToken: string })?.accessToken;
   const router = useRouter();
   const queryClient = useQueryClient();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: "hi",
     },
   });
 
+  const { data, isLoading, isError, error } = useQuery<GetCategoryResponse>({
+    queryKey: ["single-category", categoryId],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/category/${categoryId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((res) => res.json()),
+  });
+
+  useEffect(() => {
+    if (data?.data) {
+      form.reset({
+        name: data?.data?.name || "",
+      });
+    }
+  }, [data, form]);
+
   const { mutate, isPending } = useMutation({
-    mutationKey: ["add-category"],
+    mutationKey: ["edit-category"],
     mutationFn: (values: z.infer<typeof formSchema>) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/category`, {
-        method: "POST",
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/category/${categoryId}`, {
+        method: "PUT",
         headers: {
           "content-type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -60,6 +96,22 @@ const AddCategoryForm = () => {
       queryClient.invalidateQueries({ queryKey: ["category-all-data"] });
     },
   });
+
+
+  if (isLoading) {
+    return (
+      <div className="mt-10">
+        <TableSkeletonWrapper count={1} />
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <div className="mt-10">
+        <ErrorContainer message={error?.message || "Something went wrong"} />
+      </div>
+    );
+  }
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -108,4 +160,4 @@ const AddCategoryForm = () => {
   );
 };
 
-export default AddCategoryForm;
+export default EditCategoryForm;

@@ -2,12 +2,12 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-const AddCategoryHeader = () => {
+const EditCategoryHeader = ({categoryId}: {categoryId: string}) => {
   return (
     <div className="flex items-center justify-between px-[50px]">
       <div>
         <h2 className="text-2xl font-bold text-[#131313] leading-[120%]">
-          Add Category
+          Edit Category
         </h2>
         <div className="flex items-center gap-2 pt-[14px]">
           <Link
@@ -25,7 +25,11 @@ const AddCategoryHeader = () => {
           </Link>
           <ChevronRight className="text-[#929292] w-[18px] h-[18px]" />
           <p className="text-base text-[#929292] font-medium leading-[120%]">
-            Add Category
+            Edit Category
+          </p>
+          <ChevronRight className="text-[#929292] w-[18px] h-[18px]" />
+          <p className="text-base text-[#929292] font-medium leading-[120%]">
+            {categoryId}
           </p>
         </div>
       </div>
@@ -33,4 +37,4 @@ const AddCategoryHeader = () => {
   );
 };
 
-export default AddCategoryHeader;
+export default EditCategoryHeader;
