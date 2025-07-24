@@ -14,6 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -22,6 +25,7 @@ const formSchema = z.object({
 });
 
 const ForgotPasswordForm = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -29,9 +33,37 @@ const ForgotPasswordForm = () => {
     },
   });
 
+   const { mutate, isPending } = useMutation({
+    mutationKey: ["forgot-password"],
+    mutationFn: (email: string) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forget-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      }).then((res) => res.json()),
+
+    onSuccess: (data, email) => {
+      if (!data?.status) {
+        toast.error(data?.message || "Something went wrong");
+        return;
+      }
+
+      toast.success(data?.message || "Email sent successfully!");
+      router.push(`/otp?email=${encodeURIComponent(email)}`);
+    },
+
+    onError: (error) => {
+      toast.error("Something went wrong. Please try again.");
+      console.error("Forgot password error:", error);
+    },
+  });
+
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    // console.log(values);
+    mutate(values?.email)
   }
   return (
     <div>
@@ -84,10 +116,11 @@ const ForgotPasswordForm = () => {
             />
 
             <Button
+            disabled={isPending}
               className="text-lg font-bold text-[#F8FAF9] leading-[120%] rounded-[32px] w-full h-[52px] bg-secondary shadow-[0px_4px_4px_0px_rgba(0, 0, 0, 0.15)]"
               type="submit"
             >
-              Send
+              {isPending ? "Sending ..." : "Send"}
             </Button>
           </form>
         </Form>

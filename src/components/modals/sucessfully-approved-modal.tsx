@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Check } from "lucide-react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 interface SuccessfullyApprovedModalProps {
   title: string;
@@ -42,9 +43,13 @@ const SuccessfullyApprovedModal: React.FC<SuccessfullyApprovedModalProps> = ({
             <DialogDescription className="text-center text-[#293440] text-lg md:text-xl font-normal leading-[120%] pt-1 pb-6 md:pb-7 lg:pb-8">
               {desc}
             </DialogDescription>
-            <Button className="h-[48px] bg-secondary text-[#F8FAF9] py-[13px] rounded-full text-lg font-bold leading-[120%]">
-              See All Product
-            </Button>
+            <div className="w-full flex items-center justify-center">
+              <Link href="/dashboard">
+              <Button className="h-[48px] bg-secondary text-[#F8FAF9] py-[13px] rounded-full text-lg font-bold leading-[120%]">
+                See The Dashboard
+              </Button>
+            </Link>
+            </div>
           </DialogHeader>
         </DialogContent>
       </Dialog>

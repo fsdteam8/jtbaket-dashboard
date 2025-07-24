@@ -1,12 +1,30 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { DashboardSidebardData } from "./dashboard-sidebar-data";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
+import LogOutModal from "@/components/modals/logout-modal";
+import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 
 const DashboardSidebar = () => {
+  const [logoutModalisOpen, setLogoutModalisOpen] = useState(false);
   const pathName = usePathname();
+
+   const handLogout = () => {
+    try {
+      toast.success("Logout successful!");
+      setTimeout(async () => {
+        await signOut({
+          callbackUrl: "/login",
+        });
+      }, 1000);
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
   return (
     <div className="sticky top-0 z-50">
       <div
@@ -42,12 +60,25 @@ const DashboardSidebar = () => {
           })}
         </div>
         <div className="absolute bottom-8 ">
-          <button className="flex items-center gap-2 text-base text-secondary leading-[120%] tracking-[0%] font-manrope font-bold pl-4">
+          <button
+            onClick={() => setLogoutModalisOpen(true)}
+            className="flex items-center gap-2 text-base text-secondary leading-[120%] tracking-[0%] font-manrope font-bold pl-4"
+          >
             <LogOut />
             Log Out
           </button>
         </div>
       </div>
+
+      {/* logout modal  */}
+      {logoutModalisOpen && (
+        <LogOutModal
+          title="Are You Sure To Log Out?"
+          open={logoutModalisOpen}
+          onClose={() => setLogoutModalisOpen(false)}
+          onConfirm={handLogout}
+        />
+      )}
     </div>
   );
 };
