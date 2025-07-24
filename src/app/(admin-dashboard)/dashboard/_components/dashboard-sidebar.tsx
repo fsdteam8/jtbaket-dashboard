@@ -5,10 +5,26 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import LogOutModal from "@/components/modals/logout-modal";
+import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 
 const DashboardSidebar = () => {
   const [logoutModalisOpen, setLogoutModalisOpen] = useState(false);
   const pathName = usePathname();
+
+   const handLogout = () => {
+    try {
+      toast.success("Logout successful!");
+      setTimeout(async () => {
+        await signOut({
+          callbackUrl: "/login",
+        });
+      }, 1000);
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
   return (
     <div className="sticky top-0 z-50">
       <div
@@ -59,7 +75,8 @@ const DashboardSidebar = () => {
         <LogOutModal
           title="Are You Sure To Log Out?"
           open={logoutModalisOpen}
-          onOpenChange={setLogoutModalisOpen}
+          onClose={() => setLogoutModalisOpen(false)}
+          onConfirm={handLogout}
         />
       )}
     </div>

@@ -10,17 +10,19 @@ import { Check } from "lucide-react";
 interface LogOutModalProps {
   title: string;
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+  onClose: () => void;
 }
 
 const LogOutModal: React.FC<LogOutModalProps> = ({
   title,
   open,
-  onOpenChange,
+  onConfirm,
+  onClose,
 }) => {
   return (
     <div>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="bg-white">
           <DialogHeader>
             <div className="flex items-center justify-center">
@@ -36,10 +38,16 @@ const LogOutModal: React.FC<LogOutModalProps> = ({
               {title}
             </DialogTitle>
             <div className="flex items-center justify-center gap-3">
-              <button className="h-[51px] text-base font-medium leading-[120%] text-secondary border border-secondary py-4 px-[96px] rounded-[8px]">
+              <button
+                onClick={onConfirm}
+                className="h-[51px] text-base font-medium leading-[120%] text-secondary border border-secondary py-4 px-[96px] rounded-[8px]"
+              >
                 Yes
               </button>
-              <button className="h-[51px] text-base font-medium leading-[120%] bg-secondary text-white  py-4 px-[99px] rounded-full">
+              <button
+                onClick={onClose}
+                className="h-[51px] text-base font-medium leading-[120%] bg-secondary text-white  py-4 px-[99px] rounded-full"
+              >
                 No
               </button>
             </div>

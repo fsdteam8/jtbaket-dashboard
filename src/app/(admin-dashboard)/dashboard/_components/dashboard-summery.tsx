@@ -19,30 +19,18 @@ import {
 } from "@/components/ui/chart";
 import JtbaketDropdownSelector from "@/components/ui/JtbaketDropdownSelector";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+import DashboardSummerySkeleton from "./dashboard-summery-skeleton";
 
 export const description = "An area chart with a legend";
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-  { month: "July", desktop: 160, mobile: 90 },
-  { month: "August", desktop: 198, mobile: 110 },
-  { month: "September", desktop: 250, mobile: 100 },
-  { month: "October", desktop: 300, mobile: 180 },
-  { month: "November", desktop: 220, mobile: 95 },
-  { month: "December", desktop: 275, mobile: 150 },
-];
-
 const chartConfig = {
-  desktop: {
+  Approved: {
     label: "Approval",
     color: "#00D7C0",
   },
-  mobile: {
+  Pending: {
     label: "Pending",
     color: "#3E00D7",
   },
@@ -60,10 +48,53 @@ const yearList = [
   { id: 11, name: "2030", value: 2030 },
 ];
 
+export type UserRegistrationTrendResponse = {
+  status: boolean;
+  message: string;
+  data: MonthlyUserTrend[];
+};
+
+export type MonthlyUserTrend = {
+  month: string; // e.g., "Jan", "Feb", etc.
+  Pending: number;
+  Approved: number;
+};
+
 export function DashboardSummery() {
   const [selectedYear, setSelectedYear] = useState<string | number | undefined>(
-    undefined
+    new Date().getFullYear()
   );
+
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
+  // console.log({ token });
+
+  const { data, isLoading, isError, error } =
+    useQuery<UserRegistrationTrendResponse>({
+      queryKey: ["dashboard-overview-summery", selectedYear],
+      queryFn: () =>
+        fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/user-trends?year=${selectedYear}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        ).then((res) => res.json()),
+    });
+
+  console.log(data?.data);
+  if (isLoading) {
+    return <div><DashboardSummerySkeleton/></div>;
+  }
+  if (isError) {
+    return (
+      <div className="w-full h-[300px] rounded-lg border p-4 bg-gray-200 animate-pulse flex items-center justify-center mt-14">
+        <p className="text-black text-3xl font-bold text-center leading-normal ">{error?.message}</p>
+      </div>
+    );
+  }
+
   return (
     <Card className="w-full max-h-[426px] mt-[34px]">
       <div className="w-full flex items-center justify-between pr-10">
@@ -88,7 +119,7 @@ export function DashboardSummery() {
         <ChartContainer config={chartConfig} className="max-h-[300px] w-full">
           <AreaChart
             accessibilityLayer
-            data={chartData}
+            data={data?.data}
             margin={{
               left: 12,
               right: 12,
@@ -109,19 +140,19 @@ export function DashboardSummery() {
               }
             />
             <Area
-              dataKey="mobile"
+              dataKey="Approved"
               type="natural"
-              fill="var(--color-mobile)"
+              fill="var(--color-Approved)"
               fillOpacity={0.4}
-              stroke="var(--color-mobile)"
+              stroke="var(--color-Approved)"
               stackId="a"
             />
             <Area
-              dataKey="desktop"
+              dataKey="Pending"
               type="natural"
-              fill="var(--color-desktop)"
+              fill="var(--color-Pending)"
               fillOpacity={0.4}
-              stroke="var(--color-desktop)"
+              stroke="var(--color-Pending)"
               stackId="a"
             />
             <ChartLegend content={<ChartLegendContent />} />
