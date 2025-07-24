@@ -52,7 +52,7 @@ const EditCategoryForm = ({ categoryId }: { categoryId: string }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "hi",
+      name: "",
     },
   });
 

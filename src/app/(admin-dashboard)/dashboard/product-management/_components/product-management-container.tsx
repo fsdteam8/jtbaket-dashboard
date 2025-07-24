@@ -16,6 +16,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+
+
 
 export type GetAllProductsResponse = {
   status: boolean;
@@ -75,7 +78,7 @@ const ProductManagementContainer = () => {
       ).then((res) => res.json()),
   });
 
-  console.log(data);
+  // console.log(data);
 
   // delete api logic
   const { mutate: deleteBlog } = useMutation({
@@ -183,13 +186,26 @@ const ProductManagementContainer = () => {
                   </td>
                   <td className="py-[30px] flex items-center justify-center">
                     <DropdownMenu>
-                      <DropdownMenuTrigger><EllipsisVertical /></DropdownMenuTrigger>
+                      <DropdownMenuTrigger>
+                        <EllipsisVertical />
+                      </DropdownMenuTrigger>
                       <DropdownMenuContent className="bg-white">
-                        <DropdownMenuLabel className="cursor-pointer text-base text-primary font-medium">Edit</DropdownMenuLabel>
-                        <DropdownMenuLabel onClick={() => {
-                        setDeleteModalOpen(true);
-                        setSelectedProductId(item?._id);
-                      }} className="cursor-pointer text-base text-red-500 font-medium">Delete</DropdownMenuLabel>
+                        <Link
+                          href={`/dashboard/product-management/edit-product/${item?._id}`}
+                        >
+                          <DropdownMenuLabel className="cursor-pointer text-base text-primary font-medium">
+                            Edit
+                          </DropdownMenuLabel>
+                        </Link>
+                        <DropdownMenuLabel
+                          onClick={() => {
+                            setDeleteModalOpen(true);
+                            setSelectedProductId(item?._id);
+                          }}
+                          className="cursor-pointer text-base text-red-500 font-medium"
+                        >
+                          Delete
+                        </DropdownMenuLabel>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>

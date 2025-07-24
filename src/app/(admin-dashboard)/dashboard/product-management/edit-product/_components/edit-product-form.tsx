@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { ImagePlus, Upload, X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -60,13 +60,46 @@ const formSchema = z.object({
     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: "Quantity must be a valid positive number.",
     }),
+  //   quantity: z
+  //     .string()
+  //     .min(1, {
+  //       message: "Quantity is required.",
+  //     })
+  //     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+  //       message: "Quantity must be a valid positive number.",
+  //     }),
   description: z.string().min(10, {
     message: "Description must be at least 10 characters.",
   }),
   thumbnail: z.any().optional(),
 });
 
-const AddProcutForm = () => {
+export type GetProductResponse = {
+  status: boolean;
+  message: string;
+  data: Product;
+};
+
+export type Product = {
+  _id: string;
+  name: string;
+  type: "indoor" | "outdoor"; // assuming these are fixed values
+  quantity: number;
+  price: number;
+  description: string;
+  thumbnail: string; // URL to image
+  category: {
+    _id: string;
+    name: string;
+  };
+  stockStatus: "inStock" | "lowStock" | "outOfStock";
+  productId: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
+};
+
+const EditProductForm = ({ productId }: { productId: string }) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const session = useSession();
@@ -86,6 +119,37 @@ const AddProcutForm = () => {
       thumbnail: undefined,
     },
   });
+
+  const { data: singleProduct } = useQuery<GetProductResponse>({
+    queryKey: ["product", productId],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((res) => res.json()),
+  });
+
+  console.log(singleProduct?.data);
+
+  useEffect(() => {
+    if (singleProduct?.data) {
+      form.reset({
+        name: singleProduct?.data?.name || "",
+        type: singleProduct?.data?.type || "",
+        category: singleProduct?.data?.category?._id || "",
+        price: singleProduct?.data?.price?.toString() || "",
+
+        quantity: singleProduct?.data?.quantity?.toString() || "",
+
+        description: singleProduct?.data?.description || "",
+        thumbnail: undefined,
+      });
+      if (singleProduct.data.thumbnail) {
+        setPreviewImage(singleProduct.data.thumbnail);
+      }
+    }
+  }, [singleProduct, form]);
 
   const handleImageChange = (file: File) => {
     if (file) {
@@ -132,12 +196,11 @@ const AddProcutForm = () => {
 
   // product post api
   const { mutate, isPending } = useMutation({
-    mutationKey: ["add-category"],
+    mutationKey: ["edit-category", productId],
     mutationFn: (formData: FormData) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product`, {
-        method: "POST",
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product/${productId}`, {
+        method: "PUT",
         headers: {
-          // "Content-Type": "application/json",
           contentType: "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
@@ -148,7 +211,7 @@ const AddProcutForm = () => {
         toast.error(data?.message || "Something went wrong");
         return;
       }
-      toast.success(data?.message || "Product added successfully");
+      toast.success(data?.message || "Product edit successfully");
       form.reset();
       router.push("/dashboard/product-management");
       queryClient.invalidateQueries({ queryKey: ["product-all-data"] });
@@ -431,4 +494,4 @@ const AddProcutForm = () => {
   );
 };
 
-export default AddProcutForm;
+export default EditProductForm;

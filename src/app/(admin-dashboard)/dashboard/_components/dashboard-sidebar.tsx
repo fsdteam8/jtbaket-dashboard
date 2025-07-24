@@ -12,7 +12,7 @@ const DashboardSidebar = () => {
   const [logoutModalisOpen, setLogoutModalisOpen] = useState(false);
   const pathName = usePathname();
 
-   const handLogout = () => {
+  const handLogout = () => {
     try {
       toast.success("Logout successful!");
       setTimeout(async () => {
@@ -45,17 +45,21 @@ const DashboardSidebar = () => {
         <div>
           {DashboardSidebardData?.map((item) => {
             return (
-              <div
-                key={item.id}
-                className={`flex items-center gap-2 text-base font-bold leading-[120%] tracking-[0%] px-[16px] py-[14px] mb-[14px] ${
-                  pathName === item?.href
-                    ? "bg-secondary text-white"
-                    : "bg-transparent text-[#525151]"
-                }`}
-              >
-                <p className="w-6 h-6">{item.icon}</p>
-                <Link href={item.href}>{item.name}</Link>
-              </div>
+              <>
+                <Link href={item.href}>
+                  <div
+                    key={item.id}
+                    className={`w-full flex items-center gap-2 text-base font-bold leading-[120%] tracking-[0%] cursor-pointer px-[16px] py-[14px] mb-[14px] ${
+                      pathName === item?.href
+                        ? "bg-secondary text-white"
+                        : "bg-transparent text-[#525151]"
+                    }`}
+                  >
+                    <p className="w-6 h-6">{item.icon}</p>
+                    <p>{item.name}</p>
+                  </div>
+                </Link>
+              </>
             );
           })}
         </div>
