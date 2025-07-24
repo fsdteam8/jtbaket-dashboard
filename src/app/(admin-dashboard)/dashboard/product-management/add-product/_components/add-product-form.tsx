@@ -24,9 +24,17 @@ import {
 import { ImagePlus, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  Category,
+  CategoryResponse,
+} from "../../../category/_components/category-container";
 
 const formSchema = z.object({
-  productName: z.string().min(2, {
+  name: z.string().min(2, {
     message: "Product name must be at least 2 characters.",
   }),
   type: z.string().min(1, {
@@ -55,22 +63,27 @@ const formSchema = z.object({
   description: z.string().min(10, {
     message: "Description must be at least 10 characters.",
   }),
-  image: z.any().optional(),
+  thumbnail: z.any().optional(),
 });
 
 const AddProcutForm = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      productName: "",
+      name: "",
       type: "",
       category: "",
       price: "",
       quantity: "",
       description: "",
-      image: undefined,
+      thumbnail: undefined,
     },
   });
 
@@ -81,7 +94,7 @@ const AddProcutForm = () => {
         setPreviewImage(reader.result as string);
       };
       reader.readAsDataURL(file);
-      form.setValue("image", [file]);
+      form.setValue("thumbnail", [file]);
     }
   };
 
@@ -104,9 +117,57 @@ const AddProcutForm = () => {
     setIsDragOver(false);
   };
 
+  // get category api logic
+  const { data } = useQuery<CategoryResponse>({
+    queryKey: ["category-all-data"],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/category`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((res) => res.json()),
+  });
+
+  console.log(data?.data?.categories);
+
+  // product post api
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["add-category"],
+    mutationFn: (formData: FormData) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }).then((res) => res.json()),
+    onSuccess: (data) => {
+      if (!data?.status) {
+        toast.error(data?.message || "Something went wrong");
+        return;
+      }
+      toast.success(data?.message || "Product added successfully");
+      form.reset();
+      router.push("/dashboard/product-management");
+      queryClient.invalidateQueries({ queryKey: ["product-all-data"] });
+    },
+  });
+
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("type", values.type);
+    formData.append("category", values.category || "");
+    formData.append("price", values.price);
+    formData.append("quantity", values.quantity);
+    formData.append("description", values.description);
+    if (values?.thumbnail) {
+      formData.append("thumbnail", values.thumbnail || "");
+    }
+    mutate(formData);
   }
 
   return (
@@ -117,7 +178,7 @@ const AddProcutForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <FormField
                 control={form.control}
-                name="productName"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xl font-bold text-[#1F2937] leading-[120%]">
@@ -168,9 +229,11 @@ const AddProcutForm = () => {
                         <SelectValue placeholder="Category Name" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
-                        <SelectItem value="light">Light</SelectItem>
-                        <SelectItem value="dark">Dark</SelectItem>
-                        <SelectItem value="system">System</SelectItem>
+                        {data?.data?.categories?.map((category: Category) => (
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -241,7 +304,7 @@ const AddProcutForm = () => {
             <div className="w-full md:w-1/2">
               <FormField
                 control={form.control}
-                name="image"
+                name="thumbnail"
                 render={() => (
                   <FormItem>
                     <FormLabel className="text-xl font-bold text-[#1F2937] leading-[120%]">
@@ -300,7 +363,7 @@ const AddProcutForm = () => {
                               type="button"
                               onClick={() => {
                                 setPreviewImage(null);
-                                form.setValue("image", undefined);
+                                form.setValue("thumbnail", undefined);
                               }}
                               className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-50"
                             >
@@ -339,10 +402,11 @@ const AddProcutForm = () => {
 
             <div className="flex items-center gap-[21px]">
               <button
+                disabled={isPending}
                 type="submit"
                 className="text-base text-white font-medium leading-[120%] bg-secondary py-[16px] px-[61px] rounded-full"
               >
-                Save
+                {isPending ? "Saving..." : "Save"}
               </button>
               <button
                 type="button"
