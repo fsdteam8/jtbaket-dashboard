@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 // Constants
 const COOKIE_NAME = "themeColor";
 const FALLBACK_COLOR = "#000";
-const COOKIE_MAX_AGE = 60 * 60 * 6; // 1 day
+const COOKIE_MAX_AGE = 60 * 60 * 24; // 1 day
 
 // Utility functions
 function getCookie(name: string): string | null {
