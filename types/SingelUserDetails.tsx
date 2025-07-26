@@ -1,12 +1,12 @@
 export interface UserAddress {
   country: string;
   cityState: string;
-  roadArea?: string;
+  roadArea: string;
   postalCode: string;
   taxId: string;
 }
 
-export interface UserData {
+export interface UserDataType {
   _id: string;
   name: string;
   email: string;
@@ -23,7 +23,7 @@ export interface UserData {
   otpExpires: string | null;
   isVerified: boolean;
   refreshToken: string;
-  status: "approved" | "pending" | "rejected" | string;
+  status: "active" | "pending" | "suspended" | string;
   hasActiveSubscription: boolean;
   subscriptionExpireDate: string | null;
   blockedUsers: string[];
@@ -31,8 +31,8 @@ export interface UserData {
   address: UserAddress;
 }
 
-export interface UserResponse {
+export interface GetUserResponse {
   status: boolean;
   message: string;
-  data: UserData;
+  data: UserDataType;
 }
