@@ -71,9 +71,9 @@ const JtbaketPagination: React.FC<PaginationProps> = ({
               } else handlePageClick(currentPage - 1);
             }}
             className={cn(
-              "border border-[#525773] hover:bg-secondary  hover:text-white",
+              "border border-[#525773] hover:bg-primary cursor-pointer  hover:text-white",
               currentPage === 1 &&
-                "cursor-not-allowed bg-[#E3E3E3] border-0  pointer-events-none"
+              "cursor-not-allowed bg-[#E3E3E3] border-0  pointer-events-none"
             )}
           >
             <ChevronLeft
@@ -89,7 +89,7 @@ const JtbaketPagination: React.FC<PaginationProps> = ({
               className={cn(
                 "border cursor-pointer border-[#525773] hover:bg-[rgb(66,69,230)] hover:text-white",
                 page === currentPage
-                  ? "bg-secondary text-white"
+                  ? "bg-primary text-white"
                   : "hover:bg-[rgb(66,69,230)] hover:text-white"
               )}
             >
@@ -108,9 +108,9 @@ const JtbaketPagination: React.FC<PaginationProps> = ({
               }
             }}
             className={cn(
-              "border border-[#525773] hover:bg-secondary  hover:text-white",
+              "border border-[#525773] hover:bg-primary cursor-pointer  hover:text-white",
               currentPage === totalPages &&
-                "cursor-not-allowed bg-[#E3E3E3] border-0  pointer-events-none"
+              "cursor-not-allowed bg-[#E3E3E3] border-0  pointer-events-none"
             )}
           >
             <ChevronRight className="h-4 w-4" />
