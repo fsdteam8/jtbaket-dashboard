@@ -7,10 +7,7 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = new QueryClient();
   return (
     <div>
-      <QueryClientProvider client={queryClient}>
-        <ColorFetcher />
-        {children}
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>       <ColorFetcher/>{children}</QueryClientProvider>
     </div>
   );
 };

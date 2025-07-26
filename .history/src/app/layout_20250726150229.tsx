@@ -35,7 +35,6 @@ export default function RootLayout({
         <AuthProvider>
           <AppProvider>
             <ThemeFetcher/>
-     
             {children}
             <Toaster position="top-right"/>
           </AppProvider>

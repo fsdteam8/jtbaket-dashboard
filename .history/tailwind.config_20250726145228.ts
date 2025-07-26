@@ -23,7 +23,8 @@ const config: Config = {
       },
       colors: {
         primary: {
-          DEFAULT: "var(--primary)",
+          DEFAULT: ,
+          50: "#131313",
         },
         secondary: {
           DEFAULT: "#04AF1E",
