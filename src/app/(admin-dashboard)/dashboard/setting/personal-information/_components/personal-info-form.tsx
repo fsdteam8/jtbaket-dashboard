@@ -1,9 +1,9 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useId } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -14,34 +14,31 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { SquarePen } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { UserResponse } from "../../../../../../../types/UserProfiledatatype";
 
+// ✅ Schema (email is shown but not editable)
 const formSchema = z.object({
-  firstName: z.string().min(2, {
-    message: "First Name must be at least 2 characters.",
-  }),
-  lastName: z.string().min(2, {
-    message: "Last Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  phone: z.string().min(10, {
-    message: "Phone number must be at least 11 characters.",
-  }),
-  country: z.string().min(2, {
-    message: "Country must be at least 2 characters.",
-  }),
-  cityState: z.string().min(2, {
-    message: "City/State must be at least 2 characters.",
-  }),
+  name: z.string().optional(),
+  email: z.string().optional(), // shown but disabled
+  phone: z.string().optional(),
+  country: z.string().optional(),
+  cityState: z.string().optional(),
 });
 
+type ProfilePayload = z.infer<typeof formSchema>;
+
 const PersonalInfoForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const { data: session } = useSession();
+  const token = (session?.user as { accessToken?: string })?.accessToken;
+  const userId = (session?.user as { id?: string })?.id;
+
+  const form = useForm<ProfilePayload>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      name: "",
       email: "",
       phone: "",
       country: "",
@@ -49,10 +46,72 @@ const PersonalInfoForm = () => {
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
+  // ✅ Fetch user data
+  const { data } = useQuery<UserResponse>({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.json();
+    },
+    enabled: !!token && !!useId,
+  });
+
+  useEffect(() => {
+    if (data?.data) {
+      const user = data.data;
+      form.reset({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        country: user.address?.country || "",
+        cityState: user.address?.cityState || "",
+      });
+    }
+  }, [data, form]);
+
+  // ✅ Update mutation
+  const profileMutation = useMutation<UserResponse, Error, ProfilePayload>({
+    mutationFn: async (formData) => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.message || "Failed to update profile");
+      return resData;
+    },
+    onSuccess: () => {
+      toast.success("Profile updated successfully!");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong");
+    },
+  });
+
+  const onSubmit = (values: ProfilePayload) => {
+    const { name, phone, country, cityState } = values;
+
+    const payload = {
+      name,
+      phone,
+      address: {
+        country,
+        cityState,
+      },
+    };
+
+    profileMutation.mutate(payload);
+  };
+
   return (
     <div>
       <Form {...form}>
@@ -63,44 +122,26 @@ const PersonalInfoForm = () => {
             </h3>
             <button
               type="submit"
-              className="flex items-center gap-2 text-base font-medium text-white bg-secondary leading-[120%] py-[10px] px-[16px] rounded-full"
+              disabled={profileMutation.isPending}
+              className="flex items-center gap-2 text-base font-medium text-white bg-secondary leading-[120%] py-[10px] px-[16px] rounded-full disabled:opacity-60"
             >
-              <SquarePen className="w-4 h-4" /> Edit
+              <SquarePen className="w-4 h-4" />
+              {profileMutation.isPending ? "Updating..." : "Edit"}
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px]">
+
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-[30px]">
             <FormField
               control={form.control}
-              name="firstName"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base font-medium text-[#1F2937] leading-[120%]">
-                    First Name
-                  </FormLabel>
+                  <FormLabel>Full Name</FormLabel>
                   <FormControl>
                     <Input
-                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base text-primary leading-normal font-semibold placeholder:text-[#595959]"
-                      placeholder="Enter First Name ..."
+                      placeholder="Enter Full Name ..."
                       {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base font-medium text-[#1F2937] leading-[120%]">
-                    Last Name
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base text-primary leading-normal font-semibold placeholder:text-[#595959]"
-                      placeholder="Enter Last Name ..."
-                      {...field}
+                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
                     />
                   </FormControl>
                   <FormMessage />
@@ -108,39 +149,38 @@ const PersonalInfoForm = () => {
               )}
             />
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px]">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base font-medium text-[#1F2937] leading-[120%]">
-                    Email Address
-                  </FormLabel>
+                  <FormLabel>Email Address</FormLabel>
                   <FormControl>
                     <Input
-                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base text-primary leading-normal font-semibold placeholder:text-[#595959]"
+                      disabled
                       placeholder="Enter Email ..."
                       {...field}
+                      className="border border-[#595959] bg-gray-100 cursor-not-allowed h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base font-medium text-[#1F2937] leading-[120%]">
-                    Phone
-                  </FormLabel>
+                  <FormLabel>Phone</FormLabel>
                   <FormControl>
                     <Input
-                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base text-primary leading-normal font-semibold placeholder:text-[#595959]"
                       placeholder="Enter Phone Number ..."
                       {...field}
+                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
                     />
                   </FormControl>
                   <FormMessage />
@@ -148,39 +188,37 @@ const PersonalInfoForm = () => {
               )}
             />
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px]">
             <FormField
               control={form.control}
               name="country"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base font-medium text-[#1F2937] leading-[120%]">
-                    Countery
-                  </FormLabel>
+                  <FormLabel>Country</FormLabel>
                   <FormControl>
                     <Input
-                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base text-primary leading-normal font-semibold placeholder:text-[#595959]"
                       placeholder="Enter Country ..."
                       {...field}
+                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="cityState"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base font-medium text-[#1F2937] leading-[120%]">
-                    City/State
-                  </FormLabel>
+                  <FormLabel>City/State</FormLabel>
                   <FormControl>
                     <Input
-                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base text-primary leading-normal font-semibold placeholder:text-[#595959]"
-                      placeholder="Enter city/state ..."
+                      placeholder="Enter City/State ..."
                       {...field}
+                      className="border border-[#595959] h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
                     />
                   </FormControl>
                   <FormMessage />
