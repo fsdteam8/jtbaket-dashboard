@@ -1,184 +1,135 @@
 "use client";
-import JtbaketPagination from "@/components/ui/JtbaketPagination";
+
 import React, { useState } from "react";
 import UserInfoDetails from "./user-details";
-
-export type UserOrder = {
-  id: number;
-  userId: number;
-  userName: string;
-  avatar: string;
-  totalOrder: number;
-  deliveredOrder: number;
-  pendingOrder: number;
-  cancelOrder: number;
-};
-
-export const userOrderList: UserOrder[] = [
-  {
-    id: 1,
-    userId: 2201,
-    userName: "John Smith",
-    avatar: "/assets/images/profile-img.jpg",
-    totalOrder: 200,
-    deliveredOrder: 170,
-    pendingOrder: 20,
-    cancelOrder: 10,
-  },
-  {
-    id: 2,
-    userId: 2201,
-    userName: "John Smith",
-    avatar: "/assets/images/profile-img.jpg",
-    totalOrder: 200,
-    deliveredOrder: 170,
-    pendingOrder: 20,
-    cancelOrder: 10,
-  },
-  {
-    id: 3,
-    userId: 2201,
-    userName: "John Smith",
-    avatar: "/assets/images/profile-img.jpg",
-    totalOrder: 200,
-    deliveredOrder: 170,
-    pendingOrder: 20,
-    cancelOrder: 10,
-  },
-  {
-    id: 4,
-    userId: 2201,
-    userName: "John Smith",
-    avatar: "/assets/images/profile-img.jpg",
-    totalOrder: 200,
-    deliveredOrder: 170,
-    pendingOrder: 20,
-    cancelOrder: 10,
-  },
-  {
-    id: 5,
-    userId: 2201,
-    userName: "John Smith",
-    avatar: "/assets/images/profile-img.jpg",
-    totalOrder: 200,
-    deliveredOrder: 170,
-    pendingOrder: 20,
-    cancelOrder: 10,
-  },
-  {
-    id: 6,
-    userId: 2201,
-    userName: "John Smith",
-    avatar: "/assets/images/profile-img.jpg",
-    totalOrder: 200,
-    deliveredOrder: 170,
-    pendingOrder: 20,
-    cancelOrder: 10,
-  },
-  {
-    id: 7,
-    userId: 2201,
-    userName: "John Smith",
-    avatar: "/assets/images/profile-img.jpg",
-    totalOrder: 200,
-    deliveredOrder: 170,
-    pendingOrder: 20,
-    cancelOrder: 10,
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { UsersApiResponseType } from "../../../../../../types/UserAddressType";
+import JtbaketPagination from "@/components/ui/JtbaketPagination";
+import { Button } from "@/components/ui/button";
 
 const UserManagementContainer = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewDetails, setViewDetails] = useState(false);
+  const [userId, setUserId] = useState<string>("");
+
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
+
+  const { data, isLoading } = useQuery<UsersApiResponseType>({
+    queryKey: ["all-users", currentPage],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/all-users?page=${currentPage}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to fetch users");
+      return res.json();
+    },
+    enabled: !!token,
+  });
+
+  const users = data?.data.users || [];
+  const pagination = data?.data.pagination;
+
   return (
     <div className="mt-8 pb-[64px]">
       <div>
         <table className="w-full px-[50px]">
-          <thead className="">
+          <thead>
             <tr>
-              <th className="text-base font-bold text-primary-50 leading-[120%] tracking-[0%] font-manrope py-[15px]">
-                User ID
-              </th>
               <th className="text-base font-bold text-primary-50 leading-[120%] tracking-[0%] font-manrope py-[15px]">
                 User Name
               </th>
               <th className="text-base font-bold text-primary-50 leading-[120%] tracking-[0%] font-manrope py-[15px]">
-                Total Order
-              </th>
-              <th className="text-base font-bold text-primary-50 leading-[120%] tracking-[0%] font-manrope py-[15px]">
-                Delivered Order
-              </th>
-              <th className="text-base font-bold text-primary-50 leading-[120%] tracking-[0%] font-manrope py-[15px]">
-                Pending Order
-              </th>
-              <th className="text-base font-bold text-primary-50 leading-[120%] tracking-[0%] font-manrope py-[15px]">
-                Cancel Order
+                Email
               </th>
               <th className="text-base font-bold text-primary-50 leading-[120%] tracking-[0%] font-manrope py-[15px]">
                 Action
               </th>
             </tr>
           </thead>
-          <tbody className="">
-            {userOrderList?.map((item) => {
-              return (
+          <tbody>
+            {isLoading ? (
+              // Skeleton loading rows
+              [...Array(5)].map((_, idx) => (
                 <tr
-                  key={item.id}
-                  className="border-y border-dashed border-[#B6B6B6] "
+                  key={idx}
+                  className="border-y border-dashed border-[#B6B6B6] animate-pulse"
                 >
-                  <td className="text-base font-medium leading-[120%] text-primary-50 py-[30px] text-center">
-                    {item?.userId}
+                  <td className="py-[30px] text-center">
+                    <div className="h-5 bg-gray-300 rounded w-24 mx-auto"></div>
                   </td>
-                  <td className="text-base font-medium leading-[120%] text-primary-50 py-[30px] text-center">
-                    {item?.userName}
+                  <td className="py-[30px] text-center">
+                    <div className="h-5 bg-gray-300 rounded w-40 mx-auto"></div>
                   </td>
-                  <td className="text-base font-medium leading-[120%] text-primary-50 py-[30px] text-center">
-                    {item?.totalOrder}
-                  </td>
-                  <td className="text-base font-medium leading-[120%] text-primary-50 py-[30px] text-center">
-                    {item?.deliveredOrder}
-                  </td>
-                  <td className="text-base font-medium leading-[120%] text-primary-50 py-[30px] text-center">
-                    {item?.pendingOrder}
-                  </td>
-                  <td className="text-base font-medium leading-[120%] text-primary-50 py-[30px] text-center">
-                    {item?.cancelOrder}
-                  </td>
-                  <td className="py-[30px] flex items-center justify-center">
-                    <button
-                      onClick={() => setViewDetails(true)}
-                      className="text-sm font-normal leading-[120%] text-white  bg-secondary py-[6px] px-[27px] rounded-[4px]"
-                    >
-                      Details
-                    </button>
+                  <td className="py-[30px] text-center">
+                    <div className="h-8 bg-gray-300 rounded w-20 mx-auto"></div>
                   </td>
                 </tr>
-              );
-            })}
+              ))
+            ) : users.length > 0 ? (
+              users.map((item) => (
+                <tr
+                  key={item._id}
+                  className="border-y border-dashed border-[#B6B6B6]"
+                >
+                  <td className="text-base font-medium text-primary-50 py-[30px] text-center">
+                    {item.name}
+                  </td>
+                  <td className="text-base font-medium text-primary-50 py-[30px] text-center">
+                    {item.email}
+                  </td>
+                  <td className="py-[30px] flex items-center justify-center">
+                    <Button
+                      onClick={() => {
+                        setViewDetails(true);
+                        setUserId(item._id);
+                      }}
+                      className="text-sm font-normal bg-primary text-white px-[27px] py-[6px] rounded-[4px]"
+                    >
+                      Details
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={3} className="text-center py-10 text-gray-400">
+                  No users found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
-        <div className="">
-          {
-            <div className="bg-white flex items-center justify-between py-[10px] px-[50px]">
-              <p className="text-sm font-medium leading-[120%] font-manrope text-[#707070]">
-                Showing {currentPage} to 8 of 10 results
-              </p>
 
-              <div>
-                <JtbaketPagination
-                  totalPages={10}
-                  currentPage={currentPage}
-                  onPageChange={(page) => setCurrentPage(page)}
-                />
-              </div>
+        {/* Pagination UI */}
+        {pagination && (
+          <div className="bg-white  flex justify-between items-center px-[50px] py-[10px]">
+            <div className="text-sm font-medium leading-[120%] font-manrope text-[#707070]">
+              Showing page {pagination.currentPage} of {pagination.totalPages} results
             </div>
-          }
-        </div>
+
+            <div className="flex items-center">
+              <JtbaketPagination
+                totalPages={pagination.totalPages}
+                currentPage={pagination.currentPage}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* view details modals  */}
+      {/* View Details Modal */}
       {viewDetails && (
         <UserInfoDetails
+          userid={userId}
           open={viewDetails}
           onOpenChange={() => setViewDetails(false)}
         />
