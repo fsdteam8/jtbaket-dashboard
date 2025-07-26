@@ -66,7 +66,7 @@ const DashboardSidebar = () => {
         <div className="absolute bottom-8 ">
           <button
             onClick={() => setLogoutModalisOpen(true)}
-            className="flex items-center gap-2 text-base text-red-600 leading-[120%] tracking-[0%] font-manrope font-bold pl-4"
+            className="flex items-center gap-2 text-base text-red- leading-[120%] tracking-[0%] font-manrope font-bold pl-4"
           >
             <LogOut />
             Log Out

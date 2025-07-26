@@ -51,7 +51,7 @@ const DashboardSidebar = () => {
                     key={item.id}
                     className={`w-full flex items-center gap-2 text-base font-bold leading-[120%] tracking-[0%] cursor-pointer px-[16px] py-[14px] mb-[14px] ${
                       pathName === item?.href
-                        ? "bg-primary text-white"
+                        ? "bg-secondary text-white"
                         : "bg-transparent text-[#525151]"
                     }`}
                   >
@@ -66,7 +66,7 @@ const DashboardSidebar = () => {
         <div className="absolute bottom-8 ">
           <button
             onClick={() => setLogoutModalisOpen(true)}
-            className="flex items-center gap-2 text-base text-red-600 leading-[120%] tracking-[0%] font-manrope font-bold pl-4"
+            className="flex items-center gap-2 text-base text-secondary leading-[120%] tracking-[0%] font-manrope font-bold pl-4"
           >
             <LogOut />
             Log Out

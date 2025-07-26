@@ -24,6 +24,7 @@ const config: Config = {
       colors: {
         primary: {
           DEFAULT: "var(--primary)",
+          50: "#131313",
         },
         secondary: {
           DEFAULT: "#04AF1E",

@@ -6,7 +6,7 @@ import { Manrope } from "next/font/google";
 import AppProvider from "@/components/provider/AppProvider";
 import AuthProvider from "@/components/provider/AuthProvider";
 import { cookies } from "next/headers";
-import { ThemeFetcher } from "@/lib/color-fetcher";
+import { ColorFetcher, ThemeFetcher } from "@/lib/color-fetcher";
 
 const manrope = Manrope({
   subsets: ["latin"],
