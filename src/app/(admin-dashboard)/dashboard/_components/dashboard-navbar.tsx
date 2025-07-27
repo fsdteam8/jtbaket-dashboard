@@ -1,7 +1,14 @@
+"use client"
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React from "react";
 
 const DashboardNavbar = () => {
+
+  const { data: session } = useSession()
+
+  const profile = (session?.user as { profileImage: string })?.profileImage
+
   return (
     <div className="sticky top-0 z-50">
       <div
@@ -17,7 +24,7 @@ const DashboardNavbar = () => {
         className="w-full h-[90px] bg-[#F8FEFF] flex items-center justify-end pr-7"
       >
         <Image
-          src="/assets/images/profile-img.jpg"
+          src={profile ||  "/assets/images/profile-img.jpg"}
           alt="profile image"
           width={44}
           height={44}

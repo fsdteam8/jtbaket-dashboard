@@ -59,7 +59,7 @@ const CustomizeColor = () => {
       <div className="relative">
         <Button
           variant="outline"
-          className="bg-green-500 hover:bg-green-600 text-white border-green-500 px-6 py-2 rounded-full"
+          className="bg-primary hover:bg-primary/40 text-white border-primary px-6 py-2 rounded-full"
           onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
           disabled={isPending}
         >

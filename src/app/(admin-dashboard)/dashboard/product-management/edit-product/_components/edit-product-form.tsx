@@ -476,7 +476,7 @@ const EditProductForm = ({ productId }: { productId: string }) => {
               <button
                 disabled={isPending}
                 type="submit"
-                className="text-base text-white font-medium leading-[120%] bg-secondary py-[16px] px-[61px] rounded-full"
+                className="text-base text-white font-medium leading-[120%] bg-primary py-[16px] px-[61px] rounded-full"
               >
                 {isPending ? "Saving..." : "Save"}
               </button>
