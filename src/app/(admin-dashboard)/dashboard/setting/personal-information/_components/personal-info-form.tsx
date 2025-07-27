@@ -123,7 +123,7 @@ const PersonalInfoForm = () => {
             <button
               type="submit"
               disabled={profileMutation.isPending}
-              className="flex items-center gap-2 text-base font-medium text-white bg-secondary leading-[120%] py-[10px] px-[16px] rounded-full disabled:opacity-60"
+              className="flex items-center gap-2 text-base font-medium text-white bg-primary leading-[120%] py-[10px] px-[16px] rounded-full disabled:opacity-60"
             >
               <SquarePen className="w-4 h-4" />
               {profileMutation.isPending ? "Updating..." : "Edit"}

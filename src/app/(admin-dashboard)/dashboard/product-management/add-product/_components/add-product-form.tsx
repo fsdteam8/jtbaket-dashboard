@@ -340,8 +340,8 @@ const AddProcutForm = () => {
                           >
                             <div className="h-full flex flex-col items-center justify-center space-y-3">
                               <div className="flex flex-col items-center justify-center ">
-                                <ImagePlus className="w-[38px] h-[38px] text-secondary " />
-                                <p className="text-base font-medium text-secondary leading-[120%] pt-2">
+                                <ImagePlus className="w-[38px] h-[38px] text-primary " />
+                                <p className="text-base font-medium text-primary leading-[120%] pt-2">
                                   Upload
                                 </p>
                               </div>
@@ -413,7 +413,7 @@ const AddProcutForm = () => {
               <button
                 disabled={isPending}
                 type="submit"
-                className="text-base text-white font-medium leading-[120%] bg-secondary py-[16px] px-[61px] rounded-full"
+                className="text-base text-white font-medium leading-[120%] bg-primary py-[16px] px-[61px] rounded-full"
               >
                 {isPending ? "Saving..." : "Save"}
               </button>

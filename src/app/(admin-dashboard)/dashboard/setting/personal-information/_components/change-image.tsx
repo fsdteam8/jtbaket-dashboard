@@ -137,7 +137,7 @@ const ProfileCard = () => {
 
       <Button
         onClick={handleEditClick}
-        className="mt-6 px-6 py-2 bg-[#04AF1E] text-white rounded-full hover:bg-[#04AF1E]/80 transition-colors"
+        className="mt-6 px-6 py-2 bg-primary text-white rounded-full hover:bg-primary/10 transition-colors"
         disabled={!imageFile || mutation.isPending}
       >
         {mutation.isPending ? "Uploading..." : "Edit Image"}

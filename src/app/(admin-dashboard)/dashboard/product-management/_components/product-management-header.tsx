@@ -24,7 +24,7 @@ const ProductManagementHeader = () => {
       </div>
       <div>
         <Link href="/dashboard/product-management/add-product">
-          <button className="flex items-center gap-2 text-base text-white font-medium leading-[120%] bg-secondary py-[15px] px-[26px] rounded-full">
+          <button className="flex items-center gap-2 text-base text-white font-medium leading-[120%] bg-primary py-[15px] px-[26px] rounded-full">
             <Plus className="w-6 h-6" /> Add Product
           </button>
         </Link>

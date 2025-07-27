@@ -233,7 +233,7 @@ const ChangePasswordForm = () => {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="h-[45px] text-base font-medium bg-secondary text-white py-[13px] px-[38px] rounded-full"
+                className="h-[45px] text-base font-medium bg-primary text-white py-[13px] px-[38px] rounded-full"
               >
                 {isPending ? "Saving..." : "Save"}
               </Button>
