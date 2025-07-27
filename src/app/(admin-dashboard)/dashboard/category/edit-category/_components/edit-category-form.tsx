@@ -147,7 +147,7 @@ const EditCategoryForm = ({ categoryId }: { categoryId: string }) => {
           <div className="w-full flex items-center justify-end mt-8">
             <Button
               disabled={isPending}
-              className="h-[45px] flex items-center gap-[10px] text-base font-normal text-[#F4F4F4] leading-[120%] bg-secondary py-[13px] px-[26px] rounded-full"
+              className="h-[45px] flex items-center gap-[10px] text-base font-normal text-[#F4F4F4] leading-[120%] bg-primary py-[13px] px-[26px] rounded-full"
               type="submit"
             >
               <Save />

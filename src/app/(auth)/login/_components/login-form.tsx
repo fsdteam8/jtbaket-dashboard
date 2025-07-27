@@ -87,7 +87,7 @@ const LoginForm = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1 text-base font-medium leading-[120%] text-primary pb-2">
+                  <FormLabel className="flex items-center gap-1 text-base font-medium leading-[120%]  pb-2">
                     Email{" "}
                     <sup>
                       <svg
@@ -120,7 +120,7 @@ const LoginForm = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1 text-base font-medium leading-[120%] text-primary pb-2">
+                  <FormLabel className="flex items-center gap-1 text-base font-medium leading-[120%]  pb-2">
                     Password
                     <sup>
                       <svg
@@ -172,11 +172,11 @@ const LoginForm = () => {
                         id="rememberMe"
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className="data-[state=checked]:bg-primary data-[state=checked]:text-white border-primary"
+                        className=" data-[state=checked]:text-white "
                       />
                     </FormControl>
                     <Label
-                      className="text-sm font-medium text-primary leading-[120%] font-manrope"
+                      className="text-sm font-medium leading-[120%] font-manrope"
                       htmlFor="rememberMe"
                     >
                       Remember Me
