@@ -7,6 +7,7 @@ import { LogOut } from "lucide-react";
 import LogOutModal from "@/components/modals/logout-modal";
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
+import Image from "next/image";
 
 const DashboardSidebar = () => {
   const [logoutModalisOpen, setLogoutModalisOpen] = useState(false);
@@ -40,17 +41,17 @@ const DashboardSidebar = () => {
         className="h-screen w-[232px] max-w-[252px] bg-[#F8FEFF] relative"
       >
         <div className="pt-[20px] pb-[24px] text-3xl font-bold text-primary leading-normal px-4">
-          LOGO
+          <Image src={'/logo1.png'} width={80} height={80} className="" alt="jtbacked" />
         </div>
         <div>
           {DashboardSidebardData?.map((item) => {
             return (
-              <div   key={item.id}>
+              <div key={item.id}>
                 <Link href={item.href}>
                   <div
                     className={`w-full flex items-center gap-2 text-base font-bold leading-[120%] tracking-[0%] cursor-pointer px-[16px] py-[14px] mb-[14px] ${pathName === item?.href
-                        ? "bg-primary text-white"
-                        : "bg-transparent text-[#525151]"
+                      ? "bg-primary text-white"
+                      : "bg-transparent text-[#525151]"
                       }`}
                   >
                     <p className="w-6 h-6">{item.icon}</p>
