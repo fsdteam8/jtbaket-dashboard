@@ -11,7 +11,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
       <div className="w-full">
         <DashboardNavbar />
-        <main className="p-[30px]">{children}</main>
+        <div className="overflow-x-auto md:overflow-x-visible">
+          <main className="min-w-[600px] md:min-w-0 p-[30px]">{children}</main>
+        </div>
       </div>
     </div>
   );

@@ -36,7 +36,8 @@ const formSchema = z.object({
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,15 +47,13 @@ const LoginForm = () => {
     },
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // console.log(values);
     try {
       setIsLoading(true);
 
       const res = await signIn("credentials", {
-        email: values?.email,
-        password: values?.password,
+        email: values.email,
+        password: values.password,
         redirect: false,
       });
 
@@ -71,24 +70,26 @@ const LoginForm = () => {
       setIsLoading(false);
     }
   }
+
   return (
-    <div>
-      <div className="w-[547px] p-6 md:p-7 lg:p-8 rounded-[16px] bg-white shadow-[0px_0px_4px_rgba(0,0,0,0.10)]">
-        <h3 className="text-2xl md:text-[28px] lg:text-[32px] font-extrabold text-[#1F2937] text-center leading-[120%] ">
+    <div className="w-full px-4 sm:px-6 md:px-0">
+      <div className="w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto p-6 sm:p-7 md:p-8 rounded-2xl bg-white shadow-[0px_0px_4px_rgba(0,0,0,0.10)]">
+        <h3 className="text-xl sm:text-2xl md:text-[28px] lg:text-[32px] font-extrabold text-[#1F2937] text-center leading-tight">
           Welcome Back
         </h3>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6 pt-5 md:pt-6"
+            className="space-y-6 pt-5 sm:pt-6"
           >
+            {/* Email */}
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1 text-base font-medium leading-[120%]  pb-2">
-                    Email{" "}
+                  <FormLabel className="flex items-center gap-1 text-sm sm:text-base font-medium pb-2">
+                    Email
                     <sup>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -106,8 +107,9 @@ const LoginForm = () => {
                   </FormLabel>
                   <FormControl>
                     <Input
-                      className="w-full h-[52px] text-base font-medium leading-[120%] text-primary rounded-[32px] p-4 border border-[#484848] opacity-80 placeholder:text-[#787878]"
-                      placeholder="Enter your email ...."
+                      type="email"
+                      placeholder="Enter your email..."
+                      className="w-full h-[48px] sm:h-[52px] text-sm sm:text-base rounded-full p-4 border border-[#484848] opacity-80 placeholder:text-[#787878]"
                       {...field}
                     />
                   </FormControl>
@@ -115,12 +117,14 @@ const LoginForm = () => {
                 </FormItem>
               )}
             />
+
+            {/* Password */}
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1 text-base font-medium leading-[120%]  pb-2">
+                  <FormLabel className="flex items-center gap-1 text-sm sm:text-base font-medium pb-2">
                     Password
                     <sup>
                       <svg
@@ -141,17 +145,15 @@ const LoginForm = () => {
                     <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
-                        className="w-full h-[52px] text-base font-medium leading-[120%] text-primary rounded-[32px] p-4 border border-[#484848] opacity-80 placeholder:text-[#787878]"
-                        placeholder="Enter Password ...."
+                        placeholder="Enter password..."
+                        className="w-full h-[48px] sm:h-[52px] text-sm sm:text-base rounded-full p-4 border border-[#484848] opacity-80 placeholder:text-[#787878]"
                         {...field}
                       />
                       <button type="button" className="absolute top-3.5 right-4">
                         {showPassword ? (
-                          <Eye onClick={() => setShowPassword(!showPassword)} />
+                          <Eye onClick={() => setShowPassword(false)} />
                         ) : (
-                          <EyeOff
-                            onClick={() => setShowPassword(!showPassword)}
-                          />
+                          <EyeOff onClick={() => setShowPassword(true)} />
                         )}
                       </button>
                     </div>
@@ -161,31 +163,31 @@ const LoginForm = () => {
               )}
             />
 
+            {/* Remember Me + Forgot Password */}
             <FormField
               control={form.control}
               name="rememberMe"
               render={({ field }) => (
-                <div className="w-full flex items-center justify-between">
-                  <FormItem className="flex items-center gap-[10px]">
-                    <FormControl className="mt-2">
+                <div className="flex items-center justify-between">
+                  <FormItem className="flex items-center justify-center gap-2">
+                    <FormControl>
                       <Checkbox
                         id="rememberMe"
                         checked={field.value}
                         onCheckedChange={field.onChange}
-                        className=" data-[state=checked]:text-white "
                       />
                     </FormControl>
                     <Label
-                      className="text-sm font-medium leading-[120%] font-manrope"
                       htmlFor="rememberMe"
+                      className="text-sm "
                     >
                       Remember Me
                     </Label>
-                    <FormMessage className="text-red-500" />
+                    {/* <FormMessage className="text-red-500" /> */}
                   </FormItem>
                   <Link
-                    className="text-base font-medium text-secondary leading-[120%] hover:underline"
                     href="/forgot-password"
+                    className="text-sm font-medium text-secondary hover:underline"
                   >
                     Forgot Password?
                   </Link>
@@ -193,10 +195,11 @@ const LoginForm = () => {
               )}
             />
 
+            {/* Submit Button */}
             <Button
-            disabled={isLoading}
-              className="text-lg font-bold text-[#F8FAF9] leading-[120%] rounded-[32px] w-full h-[52px] bg-secondary shadow-[0px_4px_4px_0px_rgba(0, 0, 0, 0.15)]"
               type="submit"
+              disabled={isLoading}
+              className="w-full h-[48px] sm:h-[52px] text-base sm:text-lg font-bold text-white bg-secondary rounded-full shadow-md"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
