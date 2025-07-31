@@ -40,7 +40,7 @@ const LogOutModal: React.FC<LogOutModalProps> = ({
             <div className="flex items-center justify-center gap-3">
               <button
                 onClick={onConfirm}
-                className="h-[51px] text-base font-medium leading-[120%] text-secondary border border-secondary py-4 px-[96px] rounded-[8px]"
+                className="h-[51px] text-base font-medium leading-[120%]  border border-red-500 py-4 px-[96px] rounded-full text-red-500"
               >
                 Yes
               </button>
