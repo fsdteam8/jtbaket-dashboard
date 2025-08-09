@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import SuccessfullyApprovedModal from "@/components/modals/sucessfully-approved-modal";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -37,7 +37,7 @@ const ResetPasswordForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // const router = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const decodedEmail = decodeURIComponent(email || "");
@@ -65,6 +65,11 @@ const ResetPasswordForm = () => {
       } else {
         // toast.success(data?.message || "Password Change successfully!");
         // router.push(`/login`);
+        setIsOpen(true);
+        setTimeout(() => {
+          router.push("/login");
+        }, 1000);
+        return;
       }
     },
   });
