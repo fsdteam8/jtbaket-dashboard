@@ -44,9 +44,9 @@ export const authOptions: NextAuthOptions = {
           if (!res.ok || !response?.status) {
             throw new Error(response?.message || "Login failed");
           }
-        //   if (response.data.user.role === "USER") {
-        //     throw new Error("Only admin can access this page");
-        //   }
+          if (response.data.user.role === "USER") {
+            throw new Error("Only admin can access this page");
+          }
           const { user, accessToken } = response.data;
 
           return {
