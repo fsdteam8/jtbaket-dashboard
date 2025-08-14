@@ -37,7 +37,7 @@ const AllComponents = () => {
             <div className="py-[52px] px-8 bg-white rounded-[16px] shadow-[0_0_4px_0_rgba(0,0,0,0.25)]">
                 <div>
                     <h2 className="text-2xl font-bold text-[#131313] leading-[120%]">
-                        Personal Informatio
+                        Personal Information
                     </h2>
                     <div className="flex items-center gap-2 pt-[14px]">
                         <Link
@@ -54,7 +54,7 @@ const AllComponents = () => {
                         </Link>
                         <ChevronRight className="text-[#929292] w-[18px] h-[18px]" />
                         <p className="text-base text-[#929292] font-medium leading-[120%]">
-                            Personal Informatio
+                            Personal Information
                         </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-[30px] items-center ">
@@ -62,7 +62,7 @@ const AllComponents = () => {
                             <PersonalInfoForm />
                         </div>
                         <div className="md:col-span-1">
-                            <ProfileCard  />
+                            <ProfileCard />
                         </div>
                     </div>
                 </div>
