@@ -14,7 +14,6 @@ const ProfileCard = () => {
   const token = (session?.user as { accessToken?: string })?.accessToken;
   const userId = (session?.user as { id?: string })?.id;
   const queryClient = useQueryClient();
-
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -134,14 +133,24 @@ const ProfileCard = () => {
         onChange={handleFileChange}
         className="hidden"
       />
+      {selectedImage ?
 
-      <Button
-        onClick={handleEditClick}
-        className="mt-6 px-6 py-2 bg-primary text-white rounded-full hover:bg-primary/10 transition-colors"
-        disabled={!imageFile || mutation.isPending}
-      >
-        {mutation.isPending ? "Uploading..." : "Edit Image"}
-      </Button>
+        <Button
+          onClick={handleEditClick}
+          className="mt-6 px-6 py-2 bg-primary text-white rounded-full hover:bg-primary/10 transition-colors"
+          disabled={!imageFile || mutation.isPending}
+        >
+          {mutation.isPending ? "Saveing..." : "Save"}
+        </Button>
+        :
+        <Button
+          className="mt-6 px-6 py-2 bg-primary text-white rounded-full hover:bg-primary/10 transition-colors"
+          disabled={!imageFile || mutation.isPending}
+        >
+          Edit Image
+        </Button>
+      }
+
     </div>
   );
 };

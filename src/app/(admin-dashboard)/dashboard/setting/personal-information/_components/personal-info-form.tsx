@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,7 +34,7 @@ const PersonalInfoForm = () => {
   const { data: session } = useSession();
   const token = (session?.user as { accessToken?: string })?.accessToken;
   const userId = (session?.user as { id?: string })?.id;
-
+  const [isEditing, setIsEditing] = useState(true);
   const form = useForm<ProfilePayload>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,7 +46,7 @@ const PersonalInfoForm = () => {
     },
   });
 
-  // ✅ Fetch user data
+
   const { data } = useQuery<UserResponse>({
     queryKey: ["profile"],
     queryFn: async () => {
@@ -73,7 +73,7 @@ const PersonalInfoForm = () => {
     }
   }, [data, form]);
 
-  // ✅ Update mutation
+
   const profileMutation = useMutation<UserResponse, Error, ProfilePayload>({
     mutationFn: async (formData) => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/${userId}`, {
@@ -91,6 +91,7 @@ const PersonalInfoForm = () => {
     },
     onSuccess: () => {
       toast.success("Profile updated successfully!");
+      setIsEditing(true)
     },
     onError: (err) => {
       toast.error(err.message || "Something went wrong");
@@ -99,7 +100,10 @@ const PersonalInfoForm = () => {
 
   const onSubmit = (values: ProfilePayload) => {
     const { name, phone, country, cityState } = values;
-
+    if (isEditing) {
+      setIsEditing(false);
+      return;
+    }
     const payload = {
       name,
       phone,
@@ -112,6 +116,8 @@ const PersonalInfoForm = () => {
     profileMutation.mutate(payload);
   };
 
+
+
   return (
     <div>
       <Form {...form}>
@@ -120,14 +126,63 @@ const PersonalInfoForm = () => {
             <h3 className="text-2xl font-semibold text-[#212121] leading-[120%]">
               Personal Information Edit
             </h3>
-            <button
-              type="submit"
-              disabled={profileMutation.isPending}
-              className="flex items-center gap-2 text-base font-medium text-white bg-primary leading-[120%] py-[10px] px-[16px] rounded-full disabled:opacity-60"
-            >
-              <SquarePen className="w-4 h-4" />
-              {profileMutation.isPending ? "Updating..." : "Edit"}
-            </button>
+            {/* {open ? (
+              <button
+                type="button"
+                onClick={() => setOPen(false)}
+                className="flex items-center gap-2 text-base font-medium text-white bg-primary py-[10px] px-[16px] rounded-full"
+              >
+                <SquarePen className="w-4 h-4" />
+                Edit
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={profileMutation.isPending}
+                className="flex items-center gap-2 text-base font-medium text-white bg-primary py-[10px] px-[16px] rounded-full disabled:opacity-60"
+              >
+                <SquarePen className="w-4 h-4" />
+                {profileMutation.isPending ? "Updating..." : "Save"}
+              </button>
+            )} */}
+            <div className="flex gap-3">
+
+              <button
+                type="submit"
+                disabled={profileMutation.isPending}
+                className="flex items-center gap-2 text-base font-medium text-white bg-primary leading-[120%] py-[10px] px-[16px] rounded-full disabled:opacity-60"
+              >
+                <SquarePen className="w-4 h-4" />
+                {profileMutation.isPending
+                  ? "Updating..."
+                  : !isEditing
+                    ? "Save"
+                    : "Edit"}
+              </button>
+              {!isEditing &&
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (data?.data) {
+                      const user = data.data;
+                      form.reset({
+                        name: user.name || "",
+                        email: user.email || "",
+                        phone: user.phone || "",
+                        country: user.address?.country || "",
+                        cityState: user.address?.cityState || "",
+                      });
+                    }
+                    setIsEditing(true);
+                  }}
+                  className="flex items-center gap-2 text-base font-medium text-black border border-primary leading-[120%] py-[10px] px-[16px] rounded-full disabled:opacity-60"
+                >
+                  <SquarePen className="w-4 h-4" />
+                  Cancel
+                </button>
+
+              }
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-1 gap-[30px]">
@@ -139,6 +194,7 @@ const PersonalInfoForm = () => {
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
                     <Input
+                      disabled={isEditing}
                       placeholder="Enter Full Name ..."
                       {...field}
                       className="border border-[#595959] h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
@@ -159,7 +215,7 @@ const PersonalInfoForm = () => {
                   <FormLabel>Email Address</FormLabel>
                   <FormControl>
                     <Input
-                      disabled
+                      disabled={isEditing}
                       placeholder="Enter Email ..."
                       {...field}
                       className="border border-[#595959] bg-gray-100 cursor-not-allowed h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
@@ -178,6 +234,7 @@ const PersonalInfoForm = () => {
                   <FormLabel>Phone</FormLabel>
                   <FormControl>
                     <Input
+                      disabled={isEditing}
                       placeholder="Enter Phone Number ..."
                       {...field}
                       className="border border-[#595959] h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
@@ -198,6 +255,7 @@ const PersonalInfoForm = () => {
                   <FormLabel>Country</FormLabel>
                   <FormControl>
                     <Input
+                      disabled={isEditing}
                       placeholder="Enter Country ..."
                       {...field}
                       className="border border-[#595959] h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
@@ -216,6 +274,7 @@ const PersonalInfoForm = () => {
                   <FormLabel>City/State</FormLabel>
                   <FormControl>
                     <Input
+                      disabled={isEditing}
                       placeholder="Enter City/State ..."
                       {...field}
                       className="border border-[#595959] h-[51px] rounded-full p-4 text-base font-semibold placeholder:text-[#595959]"
