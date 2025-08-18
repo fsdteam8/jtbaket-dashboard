@@ -296,7 +296,7 @@ const AddProcutForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xl font-bold text-[#1F2937] leading-[120%]">
-                    Descriptioin
+                    Description
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -325,11 +325,10 @@ const AddProcutForm = () => {
                           <div
                             className={`
                                   h-[200px] border border-[#B6B6B6] rounded-[20px] p-8 text-center cursor-pointer transition-colors
-                                  ${
-                                    isDragOver
-                                      ? "border-blue-400 bg-blue-50"
-                                      : "border-gray-300 hover:border-gray-400"
-                                  }
+                                  ${isDragOver
+                                ? "border-blue-400 bg-blue-50"
+                                : "border-gray-300 hover:border-gray-400"
+                              }
                                 `}
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
