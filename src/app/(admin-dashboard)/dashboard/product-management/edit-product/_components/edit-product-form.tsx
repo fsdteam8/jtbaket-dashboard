@@ -359,7 +359,7 @@ const EditProductForm = ({ productId }: { productId: string }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xl font-bold text-[#1F2937] leading-[120%]">
-                    Descriptioin
+                    Description
                   </FormLabel>
                   <FormControl>
                     <Textarea
